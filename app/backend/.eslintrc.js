@@ -7,8 +7,11 @@ module.exports = {
   extends: [
     'standard-with-typescript',
     'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'airbnb-typescript/base',
   ],
+  plugins: ['@typescript-eslint'],
   overrides: [
   ],
   parserOptions: {
@@ -17,5 +20,8 @@ module.exports = {
     tsconfigRootDir: __dirname,
     project: './tsconfig.json',
   },
-  rules: {},
+  rules: {
+    '@typescript-eslint/strict-boolean-expressions': 'warn',
+    '@typescript-eslint/no-misused-promises': 'warn',
+  },
 };

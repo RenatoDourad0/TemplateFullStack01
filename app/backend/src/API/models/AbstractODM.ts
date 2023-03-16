@@ -4,10 +4,8 @@ import {
   type Schema,
   type UpdateQuery,
   model,
-  isValidObjectId,
   startSession,
 } from 'mongoose';
-import { UnauthorizedError } from '../errors';
 
 abstract class AbstractODM<T> {
   protected model: Model<T>;
@@ -19,30 +17,17 @@ abstract class AbstractODM<T> {
   constructor(schema: Schema, modelName: string) {
     this.schema = schema;
     this.modelName = modelName;
-    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.model = models[this.modelName] || model(this.modelName, this.schema);
   }
 
-  public validateId(id: string): void {
-    try {
-      const isValid = isValidObjectId(id);
-      if (!isValid) throw new Error();
-      return;
-    } catch (error) {
-      throw new UnauthorizedError('Invalid mongo id');
-    }
-  }
-
-  public async create(obj: T): Promise<T> {
+  public async create(obj: Omit<T, 'id'>): Promise<T> {
     return this.model.create({ ...obj });
   }
 
   public async update(_id: string, obj: Partial<T>): Promise<T | null> {
-    return this.model.findByIdAndUpdate(
-      { _id },
-      { ...obj } as UpdateQuery<T>,
-      { new: true },
-    );
+    const update: UpdateQuery<T> = { ...obj };
+    return this.model.findByIdAndUpdate({ _id }, update, { new: true });
   }
 
   public async delete(id: string): Promise<void> {
@@ -62,8 +47,8 @@ abstract class AbstractODM<T> {
     }
   }
 
-  public async findByValue(value: string): Promise<T | null> {
-    return this.model.findOne({ value });
+  public async findByField(field: string, value: any): Promise<T | null> {
+    return this.model.findOne().where(field).equals(value);
   }
 
   public async FindAll(): Promise<T[] | []> {

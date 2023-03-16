@@ -1,4 +1,4 @@
-import 'dotenv/config.js';
+import 'dotenv/config';
 import { type Request, type Response, type NextFunction } from 'express';
 import type HttpException from '../errors/HttpException.error';
 
@@ -6,14 +6,15 @@ function errorMiddleware(
   err: HttpException,
   _req: Request,
   res: Response,
-  _next: NextFunction,
-) {
+  next: NextFunction,
+): void {
   if (process.env.NODE_ENV !== 'production') {
     console.error(`Status: ${err.status} --- Message: ${err.message} 
     ----
-    ${err.stack}`);
+    ${err.stack as string}`);
   }
-  return res.status(err.status || 500).json({ error: { message: err.message } });
+  res.status(err.status ?? 500).json({ error: { message: err.message } });
+  next();
 }
 
 export default errorMiddleware;
