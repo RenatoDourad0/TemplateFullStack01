@@ -7,7 +7,7 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "test": "npm run test",
+    "test": "jest",
     "dev": "nodemon ./src/API/index.ts",
     "build": "npx -y tsc",
     "start": "npm run build && node ./dist/src/API/index.js",
