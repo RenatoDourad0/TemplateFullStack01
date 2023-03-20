@@ -35,22 +35,22 @@ services:
     networks:
       - myapp-network
 
-  # frontend:
-  #   build:
-  #     context: ./app/frontend
-  #     dockerfile: Dockerfile
-  #   image: frontEnd
-      # depends_on:
-      #   - backend
-  #   ports:
-  #     - "3001:3001"
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "curl --fail http://localhost:80/health || exit 1"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 5
-  #   networks:
-  #     - myapp-network
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: frontEnd
+    depends_on:
+      - backend
+    ports:
+      - "3001:3001"
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:80/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - myapp-network
 
 volumes:
   mongodb-data:
