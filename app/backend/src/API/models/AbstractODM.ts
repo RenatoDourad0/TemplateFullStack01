@@ -6,6 +6,7 @@ import {
   model,
   startSession,
 } from 'mongoose';
+import { BadRequestError } from '../errors';
 
 abstract class AbstractODM<T> {
   protected model: Model<T>;
@@ -22,7 +23,12 @@ abstract class AbstractODM<T> {
   }
 
   public async create(obj: Omit<T, 'id'>): Promise<T> {
-    return this.model.create({ ...obj });
+    try {
+      const newObj = await this.model.create({ ...obj });
+      return newObj;
+    } catch (error: any) {
+      throw new BadRequestError(`falha ao adicionar ao banco: ${(error as Error).message}`);
+    }
   }
 
   public async update(_id: string, obj: Partial<T>): Promise<T | null> {
@@ -47,8 +53,8 @@ abstract class AbstractODM<T> {
     }
   }
 
-  public async findByField(field: string, value: any): Promise<T | null> {
-    return this.model.findOne().where(field).equals(value);
+  public async findByField(fieldObj: Partial<T>): Promise<T | null> {
+    return this.model.findOne(fieldObj);
   }
 
   public async FindAll(): Promise<T[] | []> {

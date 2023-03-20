@@ -17,36 +17,36 @@ export default class JwtAuth implements IAuth {
 
   async authenticate(email: string, password: string): Promise<string> {
     if (!this.isBodyValid(email, password)) {
-      throw new BadRequestError('email ou senha não identificados');
+      throw new BadRequestError('Falha de autenticação: email ou senha não identificados');
     }
 
     const user = await this.userService.findByEmail(email);
 
     if ((user == null) || !bcrypt.compareSync(password, user.password)) {
-      throw new UnauthorizedError('Email ou senha inválidos');
+      throw new UnauthorizedError('Falha de autenticação: email ou senha inválidos');
     }
     const { id, firstName, lastName, email: dbMail } = user;
 
     const jwtConfig: SignOptions = { expiresIn: '7d', algorithm: 'HS256' };
-    const token = sign({ id, firstName, lastName, dbMail }, this.secret, jwtConfig);
+    const token = sign({ data: { id, firstName, lastName, dbMail } }, this.secret, jwtConfig);
     return token;
   }
 
   async validate(token: string): Promise<User> {
     if (token.length === 0) {
-      throw new BadRequestError('Token inexistente');
+      throw new BadRequestError('Falha de autenticação: Token inexistente');
     }
 
     let decoded;
     try {
       decoded = verify(token, this.secret) as JwtReturn;
     } catch (error) {
-      throw new UnauthorizedError('Token inválido');
+      throw new UnauthorizedError('Falha de autenticação: Token inválido');
     }
-
-    const user = await this.userService.findById(String(decoded.id));
-    if ((user == null) || user.email !== decoded.dbMail) {
-      throw new UnauthorizedError('Email ou senha inválidos');
+    const { data: { id } } = decoded;
+    const user = await this.userService.findById(String(id));
+    if ((user === null) || user.email !== decoded.dbMail) {
+      throw new UnauthorizedError('Falha de autenticação: Email ou senha inválidos');
     }
     return user;
   }

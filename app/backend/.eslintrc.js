@@ -20,6 +20,7 @@ module.exports = {
     tsconfigRootDir: __dirname,
     project: './tsconfig.json',
   },
+  ignorePatterns: ['./jest.config.ts'],
   rules: {
     '@typescript-eslint/strict-boolean-expressions': 'warn',
     '@typescript-eslint/no-misused-promises': 'warn',

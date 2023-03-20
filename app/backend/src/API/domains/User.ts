@@ -1,9 +1,10 @@
 import type IUser from '../interfaces/IUser';
+import type mongoose from 'mongoose';
 import { isValidObjectId } from 'mongoose';
 import { BadRequestError } from '../errors';
 
 export default class User implements IUser {
-  readonly id: string | undefined;
+  readonly id: mongoose.Types.ObjectId | undefined;
 
   readonly firstName: string;
 
@@ -14,16 +15,16 @@ export default class User implements IUser {
   readonly password: string;
 
   constructor(user: IUser) {
-    this.id = this.setId(user);
+    this.id = this.setId(user._id);
     this.firstName = this.setFirstName(user.firstName);
     this.lastName = this.setLastName(user.lastName);
     this.email = this.setEmail(user.email);
     this.password = this.setPassword(user.password);
   }
 
-  private readonly setId = (user: IUser): string | undefined => {
-    if (isValidObjectId(user._id)) return user._id as any as string;
-    throw new BadRequestError('Id inválido ou inexistente');
+  private readonly setId = (id: mongoose.Types.ObjectId | undefined): mongoose.Types.ObjectId | undefined => {
+    if ((id != null) && isValidObjectId(id)) return id;
+    return undefined;
   };
 
   private readonly setFirstName = (firstName: string): string => {
@@ -49,7 +50,7 @@ export default class User implements IUser {
   // At least 8 characters in length, but no more than 32.
 
   private readonly setPassword = (pass: string): string => {
-    const regex = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})/;
+    const regex = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})/g;
     if (regex.test(pass)) return pass;
     throw new BadRequestError('senha inválida');
   };

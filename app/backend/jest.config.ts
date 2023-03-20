@@ -1,10 +1,13 @@
-import type { Config } from 'jest';
+import { pathsToModuleNameMapper } from 'ts-jest';
+import { compilerOptions } from './tsconfig.json';
+import type { JestConfigWithTsJest } from 'ts-jest';
 
-const config: Config = {
+const jestConfig: JestConfigWithTsJest = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  rootDir: './tests',
-  testTimeout: 60000,
+  roots: ['<rootDir>'],
+  modulePaths: [compilerOptions.baseUrl],
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths),
 };
 
-export default config;
+export default jestConfig;
